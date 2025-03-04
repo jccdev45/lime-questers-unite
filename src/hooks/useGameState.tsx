@@ -1,6 +1,18 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Player, Bullet, updatePlayerPosition, fireWeapon, leaveRoom } from '@/lib/supabase';
+import { Player, supabase, updatePlayerPosition, fireWeapon, leaveRoom } from '@/lib/supabase';
+
+// Import Bullet from the vite-env.d.ts type declarations
+type Bullet = {
+  id: string;
+  playerId: string;
+  x: number;
+  y: number;
+  z: number;
+  directionX: number;
+  directionY: number;
+  directionZ: number;
+  createdAt: number;
+};
 
 type GameState = {
   players: Record<string, Player>;
@@ -49,7 +61,8 @@ const useGameState = (initialRoomId?: string, initialPlayerId?: string) => {
         weapon: i % 2 === 0 ? 'rifle' : 'pistol',
         score: Math.floor(Math.random() * 5),
         isAlive: true,
-        lastUpdate: Date.now(),
+        team: i % 2 === 0 ? 'green' : 'red',
+        lastUpdated: Date.now(),
       };
     }
     
@@ -75,7 +88,8 @@ const useGameState = (initialRoomId?: string, initialPlayerId?: string) => {
           weapon: selectedWeapon,
           score: 0,
           isAlive: true,
-          lastUpdate: Date.now(),
+          team: 'green',
+          lastUpdated: Date.now(),
         },
         ...createBotPlayers(),
       },
@@ -105,7 +119,7 @@ const useGameState = (initialRoomId?: string, initialPlayerId?: string) => {
             y,
             z,
             rotationY,
-            lastUpdate: now,
+            lastUpdated: now,
           }
         };
         
@@ -335,7 +349,7 @@ const useGameState = (initialRoomId?: string, initialPlayerId?: string) => {
                 x: updatedPlayers[id].x + Math.sin(angle) * speed,
                 z: updatedPlayers[id].z + Math.cos(angle) * speed,
                 rotationY: angle,
-                lastUpdate: now,
+                lastUpdated: now,
               };
             }
             

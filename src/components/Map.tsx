@@ -4,289 +4,275 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 interface MapProps {
-  type: string;
+  timeOfDay?: 'day' | 'night';
 }
 
-const Map: React.FC<MapProps> = ({ type }) => {
-  const floorRef = useRef<THREE.Mesh>(null);
+const Map: React.FC<MapProps> = ({ timeOfDay = 'day' }) => {
+  const groundRef = useRef<THREE.Mesh>(null);
+  const gridHelperRef = useRef<THREE.GridHelper>(null);
   
-  // Simple lighting effect for the floor
+  // Lights
+  const lightRef1 = useRef<THREE.PointLight>(null);
+  const lightRef2 = useRef<THREE.PointLight>(null);
+  const lightRef3 = useRef<THREE.PointLight>(null);
+  
+  // Animate lights
   useFrame(({ clock }) => {
-    if (floorRef.current && floorRef.current.material instanceof THREE.MeshStandardMaterial) {
-      const time = clock.getElapsedTime();
-      const intensity = (Math.sin(time * 0.5) * 0.05) + 0.95;
-      floorRef.current.material.emissiveIntensity = intensity;
+    if (lightRef1.current) {
+      lightRef1.current.position.x = Math.sin(clock.getElapsedTime() * 0.3) * 15;
+      lightRef1.current.position.z = Math.cos(clock.getElapsedTime() * 0.3) * 15;
+    }
+    
+    if (lightRef2.current) {
+      lightRef2.current.intensity = 1 + Math.sin(clock.getElapsedTime()) * 0.2;
     }
   });
 
+  const isDark = timeOfDay === 'night';
+  
   return (
     <group>
-      {/* Floor with grid texture */}
+      {/* Ground plane */}
       <mesh 
-        ref={floorRef}
+        ref={groundRef}
         rotation={[-Math.PI / 2, 0, 0]} 
-        position={[0, 0, 0]} 
+        position={[0, 0, 0]}
         receiveShadow
       >
-        <planeGeometry args={[100, 100, 100, 100]} />
+        <planeGeometry args={[100, 100]} />
         <meshStandardMaterial 
-          color="#151617" 
-          wireframe={false}
-          emissive="#84cc16"
-          emissiveIntensity={0.05}
-        >
-          <gridTexture
-            args={[100, 100]}
-            colorCenterLine="#84cc16"
-            colorGrid="#171717"
-            attach="map"
-          />
-        </meshStandardMaterial>
+          color={isDark ? '#0a0a0a' : '#1a1a1a'} 
+          roughness={0.8}
+          metalness={0.2}
+        />
       </mesh>
-
-      {/* Environment walls and features based on map type */}
-      {type === 'arena' && (
-        <>
-          {/* Center platform */}
-          <mesh position={[0, 0.5, 0]} castShadow receiveShadow>
-            <boxGeometry args={[10, 1, 10]} />
-            <meshStandardMaterial color="#1a1a1a" />
-          </mesh>
-          
-          {/* Ramps to center platform */}
-          <mesh position={[7, 0.25, 0]} rotation={[0, 0, Math.PI * 0.05]} castShadow receiveShadow>
-            <boxGeometry args={[4, 0.5, 6]} />
-            <meshStandardMaterial color="#252525" />
-          </mesh>
-          
-          <mesh position={[-7, 0.25, 0]} rotation={[0, 0, -Math.PI * 0.05]} castShadow receiveShadow>
-            <boxGeometry args={[4, 0.5, 6]} />
-            <meshStandardMaterial color="#252525" />
-          </mesh>
-          
-          <mesh position={[0, 0.25, 7]} rotation={[Math.PI * 0.05, 0, 0]} castShadow receiveShadow>
-            <boxGeometry args={[6, 0.5, 4]} />
-            <meshStandardMaterial color="#252525" />
-          </mesh>
-          
-          <mesh position={[0, 0.25, -7]} rotation={[-Math.PI * 0.05, 0, 0]} castShadow receiveShadow>
-            <boxGeometry args={[6, 0.5, 4]} />
-            <meshStandardMaterial color="#252525" />
-          </mesh>
-          
-          {/* Corner pillars */}
-          {[
-            [15, 5, 15],
-            [15, 5, -15],
-            [-15, 5, 15],
-            [-15, 5, -15],
-          ].map((pos, index) => (
-            <mesh key={index} position={pos} castShadow receiveShadow>
-              <boxGeometry args={[2, 10, 2]} />
-              <meshStandardMaterial color="#202020" />
-            </mesh>
-          ))}
-          
-          {/* Outer walls */}
-          {[
-            [0, 3, 20, 40, 6, 1],  // North wall
-            [0, 3, -20, 40, 6, 1], // South wall
-            [20, 3, 0, 1, 6, 40],  // East wall
-            [-20, 3, 0, 1, 6, 40], // West wall
-          ].map((item, index) => (
-            <mesh key={`wall-${index}`} position={[item[0], item[1], item[2]]} castShadow receiveShadow>
-              <boxGeometry args={[item[3], item[4], item[5]]} />
-              <meshStandardMaterial color="#101010" />
-            </mesh>
-          ))}
-          
-          {/* Central lime-colored light column */}
-          <mesh position={[0, 8, 0]} castShadow>
-            <cylinderGeometry args={[0.5, 0.5, 16, 16]} />
-            <meshStandardMaterial color="#333" emissive="#84cc16" emissiveIntensity={1} />
-          </mesh>
-          
-          {/* Floating light orbs */}
-          {Array.from({ length: 8 }).map((_, index) => {
-            const angle = (index / 8) * Math.PI * 2;
-            const radius = 12;
-            return (
-              <mesh 
-                key={`orb-${index}`} 
-                position={[
-                  Math.cos(angle) * radius, 
-                  2 + Math.sin(index * 0.5) * 0.5, 
-                  Math.sin(angle) * radius
-                ]}
-              >
-                <sphereGeometry args={[0.3, 16, 16]} />
-                <meshStandardMaterial color="#84cc16" emissive="#84cc16" emissiveIntensity={1} />
-              </mesh>
-            );
-          })}
-        </>
-      )}
       
-      {type === 'tactical' && (
-        <>
-          {/* Buildings and cover */}
-          {[
-            [5, 2, 0, 4, 4, 8],    // Center building
-            [-7, 1.5, 5, 6, 3, 3],  // Left building
-            [0, 1, -8, 8, 2, 4],    // Back cover
-            [8, 1, 8, 4, 2, 4],     // Right cover
-          ].map((item, index) => (
-            <mesh key={`building-${index}`} position={[item[0], item[1], item[2]]} castShadow receiveShadow>
-              <boxGeometry args={[item[3], item[4], item[5]]} />
-              <meshStandardMaterial color="#202020" />
-            </mesh>
-          ))}
-          
-          {/* Barriers for cover */}
-          {[
-            [-3, 0.5, 0],
-            [0, 0.5, 3],
-            [3, 0.5, -3],
-            [-5, 0.5, -5],
-            [8, 0.5, 0],
-          ].map((pos, index) => (
-            <mesh key={`barrier-${index}`} position={pos} castShadow receiveShadow>
-              <boxGeometry args={[1.5, 1, 0.3]} />
-              <meshStandardMaterial color="#333" />
-            </mesh>
-          ))}
-          
-          {/* Perimeter wall with openings */}
-          {[
-            [0, 2, 15, 30, 4, 1],  // North wall
-            [0, 2, -15, 30, 4, 1], // South wall
-            [15, 2, 5, 1, 4, 20],  // East wall partial
-            [15, 2, -8, 1, 4, 14], // East wall partial
-            [-15, 2, 0, 1, 4, 30], // West wall
-          ].map((item, index) => (
-            <mesh key={`wall-${index}`} position={[item[0], item[1], item[2]]} castShadow receiveShadow>
-              <boxGeometry args={[item[3], item[4], item[5]]} />
-              <meshStandardMaterial color="#101010" />
-            </mesh>
-          ))}
-          
-          {/* Bridge between buildings */}
-          <mesh position={[-1, 3, 2.5]} castShadow receiveShadow>
-            <boxGeometry args={[6, 0.5, 2]} />
-            <meshStandardMaterial color="#1a1a1a" />
-          </mesh>
-          
-          {/* Lime accent lights */}
-          {[
-            [5, 4.1, 0],    // Center building
-            [-7, 3.1, 5],   // Left building
-            [15, 4.1, -1],  // Wall
-            [-15, 4.1, 0],  // Wall
-          ].map((pos, index) => (
-            <pointLight
-              key={`light-${index}`}
-              position={pos}
-              intensity={15}
-              distance={10}
-              color="#84cc16"
+      {/* Grid helper */}
+      <gridHelper 
+        args={[100, 100, '#333333', '#222222']} 
+        position={[0, 0.01, 0]} 
+      />
+      
+      {/* Main building */}
+      <mesh 
+        position={[0, 5, -20]} 
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[30, 10, 30]} />
+        <meshStandardMaterial color="#1a1a1a" roughness={0.7} metalness={0.2} />
+      </mesh>
+      
+      {/* Main building entrance */}
+      <mesh 
+        position={[0, 2, -5]} 
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[10, 4, 1]} />
+        <meshStandardMaterial color="#171717" roughness={0.7} metalness={0.3} />
+      </mesh>
+      
+      {/* Barriers */}
+      <mesh 
+        position={[-8, 1, 0]} 
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[2, 2, 10]} />
+        <meshStandardMaterial color={isDark ? "#1e2a1e" : "#253425"} roughness={0.8} />
+      </mesh>
+      
+      <mesh 
+        position={[8, 1, 0]} 
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[2, 2, 10]} />
+        <meshStandardMaterial color={isDark ? "#1e2a1e" : "#253425"} roughness={0.8} />
+      </mesh>
+      
+      <mesh 
+        position={[0, 1, 5]} 
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[16, 2, 2]} />
+        <meshStandardMaterial color={isDark ? "#1e2a1e" : "#253425"} roughness={0.8} />
+      </mesh>
+      
+      <mesh 
+        position={[0, 1, -10]} 
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[16, 2, 2]} />
+        <meshStandardMaterial color={isDark ? "#1e2a1e" : "#253425"} roughness={0.8} />
+      </mesh>
+      
+      {/* Spawn points - Left side team */}
+      <group position={[-20, 0, 0]}>
+        {[...Array(5)].map((_, index) => {
+          const position: [number, number, number] = [
+            -5 + index * 2, 
+            0.5, 
+            -5 + Math.random() * 10
+          ];
+          return (
+            <mesh 
+              key={`spawn-left-${index}`}
+              position={position}
               castShadow
-            />
-          ))}
-        </>
+              receiveShadow
+            >
+              <boxGeometry args={[1, 1, 1]} />
+              <meshStandardMaterial color="#4ade80" emissive="#4ade80" emissiveIntensity={0.2} />
+            </mesh>
+          );
+        })}
+      </group>
+      
+      {/* Spawn points - Right side team */}
+      <group position={[20, 0, 0]}>
+        {[...Array(5)].map((_, index) => {
+          const position: [number, number, number] = [
+            5 - index * 2, 
+            0.5, 
+            -5 + Math.random() * 10
+          ];
+          return (
+            <mesh 
+              key={`spawn-right-${index}`}
+              position={position}
+              castShadow
+              receiveShadow
+            >
+              <boxGeometry args={[1, 1, 1]} />
+              <meshStandardMaterial color="#ef4444" emissive="#ef4444" emissiveIntensity={0.2} />
+            </mesh>
+          );
+        })}
+      </group>
+      
+      {/* Center health pickup */}
+      <mesh 
+        position={[0, 1, 0]} 
+        castShadow
+        receiveShadow
+      >
+        <cylinderGeometry args={[1, 1, 0.5, 16]} />
+        <meshStandardMaterial color="#4ade80" emissive="#4ade80" emissiveIntensity={0.5} />
+      </mesh>
+      
+      {/* Small platforms */}
+      <group position={[-15, 0, -15]}>
+        <mesh 
+          position={[0, 2, 0]} 
+          castShadow
+          receiveShadow
+        >
+          {/* Platform base */}
+          <boxGeometry args={[6, 4, 6]} />
+          <meshStandardMaterial color="#1f1f1f" roughness={0.6} />
+        </mesh>
+        
+        {/* Platform top with ammo */}
+        <mesh 
+          position={[0, 5, 0]} 
+          castShadow
+          receiveShadow
+        >
+          <sphereGeometry args={[0.7, 16, 16]} />
+          <meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={0.5} />
+        </mesh>
+      </group>
+      
+      {/* Small platforms */}
+      <group position={[15, 0, -15]}>
+        <mesh 
+          position={[0, 2, 0]} 
+          castShadow
+          receiveShadow
+        >
+          {/* Platform base */}
+          <boxGeometry args={[6, 4, 6]} />
+          <meshStandardMaterial color="#1f1f1f" roughness={0.6} />
+        </mesh>
+        
+        {/* Platform top with ammo */}
+        <mesh 
+          position={[0, 5, 0]} 
+          castShadow
+          receiveShadow
+        >
+          <boxGeometry args={[1, 1, 1]} />
+          <meshStandardMaterial color="#fbbf24" emissive="#fbbf24" emissiveIntensity={0.5} />
+        </mesh>
+      </group>
+      
+      {/* Sniper position */}
+      <mesh 
+        position={[0, 10, -30]} 
+        castShadow
+        receiveShadow
+      >
+        <boxGeometry args={[10, 0.5, 5]} />
+        <meshStandardMaterial color="#2a2a2a" roughness={0.7} />
+      </mesh>
+      
+      {/* Light sources */}
+      <pointLight 
+        ref={lightRef1}
+        position={[10, 15, 10] as [number, number, number]} 
+        intensity={isDark ? 2 : 0.2}
+        distance={50}
+        castShadow
+        color={isDark ? "#4ade80" : "#ffffff"}
+      />
+      
+      {/* Left team light */}
+      <group position={[-20, 0, 0]}>
+        <pointLight 
+          position={[0, 8, 0]} 
+          intensity={isDark ? 2 : 0.5}
+          distance={20}
+          color="#4ade80"
+        />
+      </group>
+      
+      {/* Right team light */}
+      <group position={[20, 0, 0]}>
+        <pointLight 
+          ref={lightRef2}
+          position={[0, 8, 0]} 
+          intensity={isDark ? 2 : 0.5}
+          distance={20}
+          color="#ef4444"
+        />
+      </group>
+      
+      {/* Environment fog */}
+      <fog attach="fog" args={[isDark ? '#030303' : '#e5e5e5', 30, 100]} />
+      
+      {/* Additional decorative elements */}
+      {isDark && (
+        <group>
+          <pointLight 
+            ref={lightRef3}
+            position={[0, 2, 0]} 
+            intensity={0.8}
+            distance={5}
+            color="#4ade80"
+          />
+        </group>
       )}
       
-      {type === 'battlefield' && (
-        <>
-          {/* Center crater */}
-          <mesh position={[0, -1, 0]} receiveShadow>
-            <cylinderGeometry args={[10, 15, 2, 32]} />
-            <meshStandardMaterial color="#0a0a0a" />
-          </mesh>
-          
-          {/* Scattered rocks */}
-          {Array.from({ length: 20 }).map((_, index) => {
-            const angle = Math.random() * Math.PI * 2;
-            const radius = 5 + Math.random() * 10;
-            const size = 0.5 + Math.random() * 1.5;
-            return (
-              <mesh 
-                key={`rock-${index}`} 
-                position={[
-                  Math.cos(angle) * radius, 
-                  size / 2, 
-                  Math.sin(angle) * radius
-                ]}
-                rotation={[
-                  Math.random() * Math.PI,
-                  Math.random() * Math.PI,
-                  Math.random() * Math.PI
-                ]}
-                castShadow 
-                receiveShadow
-              >
-                <boxGeometry args={[size, size, size]} />
-                <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
-              </mesh>
-            );
-          })}
-          
-          {/* Large cover structures */}
-          {[
-            [8, 2, 8],
-            [-8, 2, -8],
-            [12, 3, -5],
-            [-12, 3, 5],
-            [0, 1.5, 12],
-            [0, 1.5, -12],
-          ].map((pos, index) => {
-            const width = 3 + Math.random() * 2;
-            const height = 2 + Math.random() * 3;
-            const depth = 3 + Math.random() * 2;
-            return (
-              <mesh 
-                key={`structure-${index}`} 
-                position={[pos[0], pos[1], pos[2]]} 
-                rotation={[0, Math.random() * Math.PI, 0]}
-                castShadow 
-                receiveShadow
-              >
-                <boxGeometry args={[width, height, depth]} />
-                <meshStandardMaterial color="#171717" />
-              </mesh>
-            );
-          })}
-          
-          {/* Ambient fog */}
-          <fog attach="fog" args={['#000000', 30, 50]} />
-          
-          {/* Eerie lime lights in the battlefield */}
-          {Array.from({ length: 6 }).map((_, index) => {
-            const angle = (index / 6) * Math.PI * 2;
-            const radius = 15;
-            return (
-              <pointLight
-                key={`eerie-light-${index}`}
-                position={[
-                  Math.cos(angle) * radius, 
-                  0.5, 
-                  Math.sin(angle) * radius
-                ]}
-                intensity={10}
-                distance={15}
-                color="#84cc16"
-              />
-            );
-          })}
-          
-          {/* Central ominous light */}
-          <pointLight
-            position={[0, 5, 0]}
-            intensity={20}
-            distance={30}
-            color="#84cc16"
-          />
-        </>
-      )}
+      {/* Ambient light */}
+      <pointLight 
+        position={[0, 20, 0]} 
+        intensity={isDark ? 0.1 : 0.5}
+        distance={100}
+      />
     </group>
   );
 };
