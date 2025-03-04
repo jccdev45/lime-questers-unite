@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -88,13 +87,12 @@ const Lobby = () => {
   const handleJoinRoom = async (roomId: string) => {
     const success = await joinRoom(roomId);
     if (success) {
-      // Fix: Use proper typing for search params with Tanstack Router
+      // Fixed: Use proper typing for search params with Tanstack Router
       router.navigate({
         to: '/game',
-        search: (prev) => ({
-          ...prev,
+        search: {
           room: roomId
-        })
+        }
       });
     } else {
       alert('Failed to join room.');

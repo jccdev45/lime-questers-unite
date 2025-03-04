@@ -57,8 +57,6 @@ const routeTree = rootRoute.addChildren([
 // Create and export the router
 export const router = createRouter({ 
   routeTree,
-  // The `defaultPreload` value is typed incorrectly in some versions, so let's remove it
-  // or set it as a proper option
 });
 
 // Register the router for type safety
