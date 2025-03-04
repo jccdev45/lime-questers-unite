@@ -54,10 +54,10 @@ const routeTree = rootRoute.addChildren([
   notFoundRoute,
 ]);
 
-// Create and export the router with type assertion to bypass strictNullChecks requirement
+// Create and export the router
 export const router = createRouter({ 
   routeTree,
-}) as any; // Using type assertion to bypass the TypeScript error
+});
 
 // Register the router for type safety
 declare module '@tanstack/react-router' {

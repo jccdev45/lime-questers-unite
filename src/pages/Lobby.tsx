@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -87,10 +88,11 @@ const Lobby = () => {
   const handleJoinRoom = async (roomId: string) => {
     const success = await joinRoom(roomId);
     if (success) {
-      // Use type assertion to handle the search parameters correctly
       router.navigate({
         to: '/game',
-        search: { room: roomId } as any
+        search: {
+          room: roomId
+        }
       });
     } else {
       alert('Failed to join room.');
