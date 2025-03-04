@@ -88,11 +88,13 @@ const Lobby = () => {
   const handleJoinRoom = async (roomId: string) => {
     const success = await joinRoom(roomId);
     if (success) {
+      // Fix: Use proper typing for search params with Tanstack Router
       router.navigate({
         to: '/game',
-        search: {
+        search: (prev) => ({
+          ...prev,
           room: roomId
-        }
+        })
       });
     } else {
       alert('Failed to join room.');

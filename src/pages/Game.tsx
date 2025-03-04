@@ -21,8 +21,7 @@ import Map from '@/components/Map';
 
 const Game = () => {
   const router = useRouter();
-  const search = router.state.location.search;
-  const roomId = search.room || 'room-1';
+  const { room = 'room-1' } = router.state.location.search;
   const playerId = `player-${Math.floor(Math.random() * 1000)}`;
   const mapType = 'arena';
   
@@ -37,7 +36,7 @@ const Game = () => {
     fire,
     reload,
     changeWeapon,
-  } = useGameState(roomId, playerId);
+  } = useGameState(room, playerId);
   
   const [isFiring, setIsFiring] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -56,10 +55,10 @@ const Game = () => {
   // Initialize game on first mount
   useEffect(() => {
     if (!isGameStarted) {
-      initGame(roomId, playerId);
+      initGame(room, playerId);
       setIsGameStarted(true);
     }
-  }, [roomId, playerId, initGame, isGameStarted]);
+  }, [room, playerId, initGame, isGameStarted]);
   
   // Set up controls
   useEffect(() => {
@@ -150,7 +149,7 @@ const Game = () => {
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isLocked, isFiring, fire, reload, changeWeapon, selectedWeapon]);
+  }, [isLocked, isFiring, fire, reload, changeWeapon, selectedWeapon, room]);
   
   // Handle player movement
   useEffect(() => {
@@ -209,7 +208,7 @@ const Game = () => {
     const interval = setInterval(updatePlayerMovement, 16);
     
     return () => clearInterval(interval);
-  }, [isLocked, updatePosition]);
+  }, [isLocked, updatePosition, room]);
   
   // Handle lock and unlock camera
   const handleLock = () => {
