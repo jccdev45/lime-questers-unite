@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useEffect, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { 
@@ -11,7 +10,7 @@ import {
   Loader
 } from '@react-three/drei';
 import * as THREE from 'three';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useSearch, useNavigate } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 
 import GameUI from '@/components/GameUI';
@@ -20,12 +19,17 @@ import Player from '@/components/Player';
 import Weapon from '@/components/Weapon';
 import Map from '@/components/Map';
 
+// Define search params type
+interface GameSearch {
+  room?: string;
+}
+
 const Game = () => {
-  const location = useLocation();
+  const search = useSearch<{ search: GameSearch }>();
   const navigate = useNavigate();
-  const roomId = location.state?.roomId || 'room-1';
-  const playerId = location.state?.playerId || `player-${Math.floor(Math.random() * 1000)}`;
-  const mapType = location.state?.map || 'arena';
+  const roomId = search.room || 'room-1';
+  const playerId = `player-${Math.floor(Math.random() * 1000)}`;
+  const mapType = 'arena';
   
   const {
     gameState,
@@ -323,7 +327,7 @@ const Game = () => {
             </button>
             <button 
               className="px-6 py-2 text-white/70 hover:text-white rounded-lg font-medium mt-4 transition-all"
-              onClick={() => navigate('/lobby')}
+              onClick={() => navigate({ to: '/lobby' })}
             >
               Back to Lobby
             </button>

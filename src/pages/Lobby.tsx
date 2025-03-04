@@ -1,9 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
-import { supabase } from '@/lib/supabase';
 
 // Use the GameRoom type from vite-env.d.ts
 type GameRoom = {
@@ -88,7 +88,7 @@ const Lobby = () => {
   const handleJoinRoom = async (roomId: string) => {
     const success = await joinRoom(roomId);
     if (success) {
-      navigate(`/game?room=${roomId}`);
+      navigate({ to: '/game', search: { room: roomId } });
     } else {
       alert('Failed to join room.');
     }

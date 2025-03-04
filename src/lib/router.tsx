@@ -1,0 +1,69 @@
+
+import { createRootRoute, createRoute, createRouter } from '@tanstack/react-router';
+import Index from '@/pages/Index';
+import NotFound from '@/pages/NotFound';
+import Game from '@/pages/Game';
+import Lobby from '@/pages/Lobby';
+
+// Root route layout
+const rootRoute = createRootRoute({
+  component: () => (
+    <div>
+      <div id="outlet">
+        <Outlet />
+      </div>
+    </div>
+  ),
+});
+
+// Define all routes
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/',
+  component: Index,
+});
+
+const gameRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/game',
+  component: Game,
+});
+
+const lobbyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/lobby',
+  component: Lobby,
+});
+
+const notFoundRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '*',
+  component: NotFound,
+});
+
+// Create the outlet component
+const Outlet = () => {
+  const outlet = rootRoute.useOutlet();
+  return outlet;
+};
+
+// Create the route tree
+const routeTree = rootRoute.addChildren([
+  indexRoute,
+  gameRoute,
+  lobbyRoute,
+  notFoundRoute,
+]);
+
+// Create and export the router
+export const router = createRouter({
+  routeTree,
+  defaultPreload: 'intent',
+});
+
+// Register the router for type safety
+declare module '@tanstack/react-router' {
+  interface Register {
+    router: typeof router;
+  }
+}
