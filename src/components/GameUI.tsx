@@ -11,9 +11,10 @@ interface GameUIProps {
   kills: number;
   deaths: number;
   isReloading: boolean;
-  selectedWeapon: string;
+  weapon: string;
+  playersAlive?: number;
   onWeaponChange: (weapon: string) => void;
-  onReload: () => void;
+  onReload?: () => void;
 }
 
 const GameUI: React.FC<GameUIProps> = ({
@@ -23,9 +24,10 @@ const GameUI: React.FC<GameUIProps> = ({
   kills,
   deaths,
   isReloading,
-  selectedWeapon,
+  weapon,
+  playersAlive,
   onWeaponChange,
-  onReload,
+  onReload = () => {},
 }) => {
   return (
     <>
@@ -100,7 +102,7 @@ const GameUI: React.FC<GameUIProps> = ({
         <div className="flex flex-col gap-2">
           <button
             className={`p-2 rounded-lg flex items-center gap-2 transition-all ${
-              selectedWeapon === 'pistol'
+              weapon === 'pistol'
                 ? 'bg-lime-500 text-black'
                 : 'text-white hover:bg-white/10'
             }`}
@@ -111,7 +113,7 @@ const GameUI: React.FC<GameUIProps> = ({
           </button>
           <button
             className={`p-2 rounded-lg flex items-center gap-2 transition-all ${
-              selectedWeapon === 'rifle'
+              weapon === 'rifle'
                 ? 'bg-lime-500 text-black'
                 : 'text-white hover:bg-white/10'
             }`}

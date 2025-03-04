@@ -4,10 +4,11 @@ import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
 
 interface MapProps {
+  type?: string;
   timeOfDay?: 'day' | 'night';
 }
 
-const Map: React.FC<MapProps> = ({ timeOfDay = 'day' }) => {
+const Map: React.FC<MapProps> = ({ type = 'arena', timeOfDay = 'day' }) => {
   const groundRef = useRef<THREE.Mesh>(null);
   const gridHelperRef = useRef<THREE.GridHelper>(null);
   
@@ -223,7 +224,7 @@ const Map: React.FC<MapProps> = ({ timeOfDay = 'day' }) => {
       {/* Light sources */}
       <pointLight 
         ref={lightRef1}
-        position={[10, 15, 10] as [number, number, number]} 
+        position={[10, 15, 10]} 
         intensity={isDark ? 2 : 0.2}
         distance={50}
         castShadow
