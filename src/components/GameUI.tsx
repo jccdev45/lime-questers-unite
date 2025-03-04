@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Crosshair, Target, Shield, Zap, Gun } from 'lucide-react';
+import { Crosshair, Target, Shield, Zap, Rifle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -114,7 +114,7 @@ const GameUI: React.FC<GameUIProps> = ({
             className="glass rounded-lg p-3 flex items-center gap-2 w-44"
             animate={{ opacity: isReloading ? 0.7 : 1 }}
           >
-            <Gun className="text-white w-5 h-5" />
+            <Rifle className="text-white w-5 h-5" />
             <div className="flex-1 flex justify-center">
               {isReloading ? (
                 <span className="text-yellow-400 text-sm animate-pulse">RELOADING</span>

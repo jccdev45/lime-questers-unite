@@ -1,11 +1,43 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const Index = () => {
+  const navigate = useNavigate();
+  
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-black p-4">
+      <div className="max-w-md w-full">
+        <div className="text-center mb-8 space-y-2">
+          <h1 className="text-4xl font-extrabold tracking-tight text-white">
+            <span className="text-lime-400">Lime</span> Tactics
+          </h1>
+          <p className="text-muted-foreground">
+            A fast-paced multiplayer FPS experience
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <Button 
+            className="w-full h-12 bg-lime-500 hover:bg-lime-600" 
+            onClick={() => navigate('/lobby')}
+          >
+            Find Game
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="w-full h-12 border-lime-500 text-lime-500 hover:bg-lime-500/10"
+            onClick={() => navigate('/game')}
+          >
+            Practice Mode
+          </Button>
+        </div>
+        
+        <div className="mt-8 text-center text-xs text-muted-foreground">
+          Use WASD to move, mouse to aim, left click to shoot
+        </div>
       </div>
     </div>
   );
