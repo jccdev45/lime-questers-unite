@@ -10,7 +10,7 @@ import {
   Loader
 } from '@react-three/drei';
 import * as THREE from 'three';
-import { useSearch, useNavigate } from '@tanstack/react-router';
+import { useRouter } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 
 import GameUI from '@/components/GameUI';
@@ -19,14 +19,9 @@ import Player from '@/components/Player';
 import Weapon from '@/components/Weapon';
 import Map from '@/components/Map';
 
-// Define search params type
-interface GameSearch {
-  room?: string;
-}
-
 const Game = () => {
-  const search = useSearch<{ search: GameSearch }>();
-  const navigate = useNavigate();
+  const router = useRouter();
+  const search = router.state.location.search;
   const roomId = search.room || 'room-1';
   const playerId = `player-${Math.floor(Math.random() * 1000)}`;
   const mapType = 'arena';
@@ -262,7 +257,7 @@ const Game = () => {
           ))}
           
           {/* Map */}
-          <Map type={mapType} />
+          <Map mapType={mapType} />
           
           {/* Lighting */}
           <ambientLight intensity={0.2} />
@@ -291,7 +286,7 @@ const Game = () => {
         <GameUI
           health={isLocalPlayerDead ? 0 : health}
           ammo={ammo}
-          weapon={selectedWeapon}
+          weaponType={selectedWeapon}
           isReloading={isReloading}
           playersAlive={playersAlive}
           kills={gameState.kills}
@@ -327,7 +322,7 @@ const Game = () => {
             </button>
             <button 
               className="px-6 py-2 text-white/70 hover:text-white rounded-lg font-medium mt-4 transition-all"
-              onClick={() => navigate({ to: '/lobby' })}
+              onClick={() => router.navigate({ to: '/lobby' })}
             >
               Back to Lobby
             </button>

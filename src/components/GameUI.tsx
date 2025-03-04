@@ -1,18 +1,19 @@
-
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Target, Swords } from 'lucide-react'; // Use valid icons from lucide-react
-import { motion } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
+import { Swords, Skull, Award, Heart, Timer } from 'lucide-react';
 
 interface GameUIProps {
   health: number;
-  ammo: { current: number; max: number };
-  score: number;
+  ammo: {
+    current: number;
+    max: number;
+  };
+  weaponType: string;
+  isReloading: boolean;
+  playersAlive?: number;
   kills: number;
   deaths: number;
-  isReloading: boolean;
-  weapon: string;
-  playersAlive?: number;
+  score: number;
   onWeaponChange: (weapon: string) => void;
   onReload?: () => void;
 }
@@ -20,111 +21,76 @@ interface GameUIProps {
 const GameUI: React.FC<GameUIProps> = ({
   health,
   ammo,
-  score,
+  weaponType,
+  isReloading,
+  playersAlive,
   kills,
   deaths,
-  isReloading,
-  weapon,
-  playersAlive,
+  score,
   onWeaponChange,
-  onReload = () => {},
+  onReload,
 }) => {
   return (
-    <>
-      {/* Crosshair */}
-      <div className="crosshair">
-        <Target className="w-6 h-6 text-lime-500 opacity-50" />
-      </div>
+    <div className="absolute bottom-0 left-0 w-full p-4 text-white flex flex-col">
+      {/* Top Bar */}
+      <div className="flex justify-between items-center mb-2">
+        <div className="flex items-center space-x-2">
+          <Badge variant="secondary">
+            <Heart className="mr-1 h-4 w-4" />
+            {health} HP
+          </Badge>
+          <Badge variant="secondary">
+            <Swords className="mr-1 h-4 w-4" />
+            {kills} Kills
+          </Badge>
+          <Badge variant="secondary">
+            <Skull className="mr-1 h-4 w-4" />
+            {deaths} Deaths
+          </Badge>
+        </div>
 
-      {/* HUD */}
-      <div className="fps-hud">
-        <div className="flex justify-between items-end">
-          <div className="glass p-3 rounded-lg">
-            <div className="mb-2">
-              <p className="text-xs text-white/70 mb-1">HEALTH</p>
-              <div className="w-48 h-2 bg-white/20 rounded-full">
-                <div 
-                  className="health-bar" 
-                  style={{ width: `${health}%` }}
-                />
-              </div>
-            </div>
-            <div>
-              <p className="text-xs text-white/70 mb-1">AMMO</p>
-              <div className="flex justify-between items-center">
-                <div className="ammo-counter">
-                  {isReloading ? (
-                    <motion.span
-                      initial={{ opacity: 0.5 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ repeat: Infinity, duration: 0.5 }}
-                    >
-                      Reloading...
-                    </motion.span>
-                  ) : (
-                    `${ammo.current} / ${ammo.max}`
-                  )}
-                </div>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={onReload}
-                  disabled={isReloading || ammo.current === ammo.max}
-                  className="ml-2 text-xs"
-                >
-                  Reload
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          <div className="glass p-3 rounded-lg">
-            <div className="text-center">
-              <p className="text-xs text-white/70">SCORE</p>
-              <p className="text-xl font-bold text-lime-400">{score}</p>
-            </div>
-            <div className="flex justify-between gap-4 mt-2">
-              <div className="text-center">
-                <p className="text-xs text-white/70">KILLS</p>
-                <p className="text-sm font-medium text-white">{kills}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-xs text-white/70">DEATHS</p>
-                <p className="text-sm font-medium text-white">{deaths}</p>
-              </div>
-            </div>
-          </div>
+        <div className="flex items-center space-x-2">
+          {playersAlive !== undefined && (
+            <Badge variant="secondary">
+              <Timer className="mr-1 h-4 w-4" />
+              {playersAlive} Alive
+            </Badge>
+          )}
+          <Badge variant="secondary">
+            <Award className="mr-1 h-4 w-4" />
+            {score} Score
+          </Badge>
         </div>
       </div>
 
-      {/* Weapon selection */}
-      <div className="weapon-select">
-        <div className="flex flex-col gap-2">
+      {/* Bottom Bar */}
+      <div className="flex justify-between items-center">
+        <div className="flex items-center space-x-4">
+          <div>
+            <h3 className="text-lg font-semibold">Weapon: {weaponType}</h3>
+            <p className="text-sm">
+              Ammo: {ammo.current} / {ammo.max}
+              {isReloading && <span className="ml-2">(Reloading...)</span>}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center space-x-2">
           <button
-            className={`p-2 rounded-lg flex items-center gap-2 transition-all ${
-              weapon === 'pistol'
-                ? 'bg-lime-500 text-black'
-                : 'text-white hover:bg-white/10'
-            }`}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
             onClick={() => onWeaponChange('pistol')}
           >
-            <Swords className="w-4 h-4" />
-            <span className="text-sm">Pistol</span>
+            Pistol
           </button>
           <button
-            className={`p-2 rounded-lg flex items-center gap-2 transition-all ${
-              weapon === 'rifle'
-                ? 'bg-lime-500 text-black'
-                : 'text-white hover:bg-white/10'
-            }`}
+            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
             onClick={() => onWeaponChange('rifle')}
           >
-            <Swords className="w-4 h-4" />
-            <span className="text-sm">Rifle</span>
+            Rifle
           </button>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

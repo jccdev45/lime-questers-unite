@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useNavigate } from '@tanstack/react-router';
+import { useRouter } from '@tanstack/react-router';
 import { motion } from 'framer-motion';
 
 // Use the GameRoom type from vite-env.d.ts
@@ -63,7 +63,7 @@ const joinRoom = async (roomId: string): Promise<boolean> => {
 const Lobby = () => {
   const [rooms, setRooms] = useState<GameRoom[]>([]);
   const [newRoomName, setNewRoomName] = useState('');
-  const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -88,7 +88,12 @@ const Lobby = () => {
   const handleJoinRoom = async (roomId: string) => {
     const success = await joinRoom(roomId);
     if (success) {
-      navigate({ to: '/game', search: { room: roomId } });
+      router.navigate({
+        to: '/game',
+        search: {
+          room: roomId
+        }
+      });
     } else {
       alert('Failed to join room.');
     }

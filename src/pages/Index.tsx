@@ -1,10 +1,10 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from '@tanstack/react-router';
+import { useRouter } from '@tanstack/react-router';
 
 const Index = () => {
-  const navigate = useNavigate();
+  const router = useRouter();
   
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black p-4">
@@ -21,7 +21,7 @@ const Index = () => {
         <div className="space-y-4">
           <Button 
             className="w-full h-12 bg-lime-500 hover:bg-lime-600" 
-            onClick={() => navigate({ to: '/lobby' })}
+            onClick={() => router.navigate({ to: '/lobby' })}
           >
             Find Game
           </Button>
@@ -29,7 +29,7 @@ const Index = () => {
           <Button 
             variant="outline" 
             className="w-full h-12 border-lime-500 text-lime-500 hover:bg-lime-500/10"
-            onClick={() => navigate({ to: '/game' })}
+            onClick={() => router.navigate({ to: '/game' })}
           >
             Practice Mode
           </Button>

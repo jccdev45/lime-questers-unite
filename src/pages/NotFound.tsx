@@ -1,10 +1,10 @@
 
 import { useEffect } from "react";
-import { useRouterState } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 
 const NotFound = () => {
-  const routerState = useRouterState();
-  const pathname = routerState.location.pathname;
+  const router = useRouter();
+  const pathname = router.state.location.pathname;
 
   useEffect(() => {
     console.error(
@@ -18,7 +18,14 @@ const NotFound = () => {
       <div className="text-center">
         <h1 className="text-4xl font-bold mb-4">404</h1>
         <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
+        <a 
+          href="#" 
+          className="text-blue-500 hover:text-blue-700 underline"
+          onClick={(e) => {
+            e.preventDefault();
+            router.navigate({ to: '/' });
+          }}
+        >
           Return to Home
         </a>
       </div>

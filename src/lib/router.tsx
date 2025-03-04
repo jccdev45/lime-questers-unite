@@ -1,5 +1,5 @@
 
-import { createRootRoute, createRoute, createRouter } from '@tanstack/react-router';
+import { createRootRoute, createRoute, createRouter, Outlet } from '@tanstack/react-router';
 import Index from '@/pages/Index';
 import NotFound from '@/pages/NotFound';
 import Game from '@/pages/Game';
@@ -27,6 +27,11 @@ const gameRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/game',
   component: Game,
+  validateSearch: (search: Record<string, unknown>) => {
+    return {
+      room: search.room as string | undefined
+    };
+  }
 });
 
 const lobbyRoute = createRoute({
@@ -40,12 +45,6 @@ const notFoundRoute = createRoute({
   path: '*',
   component: NotFound,
 });
-
-// Create the outlet component
-const Outlet = () => {
-  const outlet = rootRoute.useOutlet();
-  return outlet;
-};
 
 // Create the route tree
 const routeTree = rootRoute.addChildren([
