@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+
+import { useEffect, useRef, useCallback } from "react";
 import * as THREE from "three";
 
 interface GameControlsProps {
@@ -37,10 +38,25 @@ const useGameControls = ({
   // Fix for automatic firing
   const fireIntervalRef = useRef<number | null>(null);
 
+  // Create stable callback functions
+  const handleLock = useCallback(() => {
+    console.log("Pointer lock acquired");
+  }, []);
+
+  const handleUnlock = useCallback(() => {
+    console.log("Pointer lock released");
+    // Clear firing state when unlocked
+    setIsFiring(false);
+    if (fireIntervalRef.current) {
+      clearInterval(fireIntervalRef.current);
+      fireIntervalRef.current = null;
+    }
+  }, [setIsFiring]);
+
   // Set up keyboard controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (!movementRef.current) return;
+      if (!movementRef.current || !isLocked) return;
 
       switch (e.code) {
         case "KeyW":
@@ -97,6 +113,17 @@ const useGameControls = ({
       }
     };
 
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [isLocked, reload, changeWeapon, controlsRef]);
+
+  // Set up mouse controls
+  useEffect(() => {
     const handleMouseDown = (e: MouseEvent) => {
       if (e.button === 0 && isLocked) {
         setIsFiring(true);
@@ -109,8 +136,11 @@ const useGameControls = ({
 
         // Set up new interval
         fireIntervalRef.current = window.setInterval(() => {
-          if (isFiring) {
+          if (isLocked) {
             fire();
+          } else if (fireIntervalRef.current) {
+            clearInterval(fireIntervalRef.current);
+            fireIntervalRef.current = null;
           }
         }, 300);
       }
@@ -128,14 +158,10 @@ const useGameControls = ({
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
     window.addEventListener("mousedown", handleMouseDown);
     window.addEventListener("mouseup", handleMouseUp);
 
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
       window.removeEventListener("mousedown", handleMouseDown);
       window.removeEventListener("mouseup", handleMouseUp);
 
@@ -145,15 +171,7 @@ const useGameControls = ({
         fireIntervalRef.current = null;
       }
     };
-  }, [
-    isLocked,
-    isFiring,
-    fire,
-    reload,
-    changeWeapon,
-    controlsRef,
-    setIsFiring,
-  ]);
+  }, [isLocked, fire, setIsFiring]);
 
   // Handle player movement
   useEffect(() => {
@@ -221,17 +239,6 @@ const useGameControls = ({
 
     return () => clearInterval(interval);
   }, [isLocked, updatePosition, controlsRef, playerRef]);
-
-  // Implement proper lock/unlock handlers
-  const handleLock = () => {
-    // This function is called when the pointer lock is acquired
-    console.log("Pointer lock acquired");
-  };
-
-  const handleUnlock = () => {
-    // This function is called when the pointer lock is released
-    console.log("Pointer lock released");
-  };
 
   return {
     handleLock,

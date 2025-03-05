@@ -1,3 +1,4 @@
+
 import Map from "@/components/Map";
 import Player from "@/components/Player";
 import Weapon from "@/components/Weapon";
@@ -56,7 +57,7 @@ const GameScene: React.FC<GameSceneProps> = ({
       {/* Player body */}
       <group ref={playerRef} position={[0, 1.8, 0]}>
         {/* First-person weapon */}
-        {controlsRef.current?.isLocked && (
+        {localPlayerId && controlsRef.current && controlsRef.current.isLocked && (
           <Weapon
             type={selectedWeapon}
             isReloading={isReloading}
@@ -66,12 +67,14 @@ const GameScene: React.FC<GameSceneProps> = ({
       </group>
 
       {/* Players */}
-      {Object.values(players).map((player) => (
-        <Player
-          key={player.id}
-          player={player}
-          isLocal={player.id === localPlayerId}
-        />
+      {Object.entries(players).map(([id, player]) => (
+        id !== localPlayerId && (
+          <Player
+            key={id}
+            player={player}
+            isLocal={false}
+          />
+        )
       ))}
 
       {/* Map */}
