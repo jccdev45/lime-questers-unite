@@ -19,7 +19,7 @@ interface GameUIProps {
   onReload?: () => void;
 }
 
-const GameUI: React.FC<GameUIProps> = ({
+export const GameUI: React.FC<GameUIProps> = ({
   health,
   ammo,
   weaponType,
@@ -89,6 +89,14 @@ const GameUI: React.FC<GameUIProps> = ({
           >
             Rifle
           </button>
+          {onReload && (
+            <button
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              onClick={onReload}
+            >
+              Reload
+            </button>
+          )}
         </div>
       </div>
     </div>

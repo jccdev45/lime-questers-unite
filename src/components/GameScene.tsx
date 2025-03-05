@@ -9,7 +9,7 @@ import {
   Sky,
   Stats,
 } from "@react-three/drei";
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect } from "react";
 import * as THREE from "three";
 
 interface GameSceneProps {
@@ -37,6 +37,13 @@ const GameScene: React.FC<GameSceneProps> = ({
   onLock,
   onUnlock,
 }) => {
+  // Make sure controlsRef is properly initialized
+  useEffect(() => {
+    if (controlsRef.current) {
+      console.log("Controls are initialized");
+    }
+  }, [controlsRef.current]);
+
   return (
     <Suspense fallback={null}>
       <PerspectiveCamera
@@ -57,7 +64,7 @@ const GameScene: React.FC<GameSceneProps> = ({
       {/* Player body */}
       <group ref={playerRef} position={[0, 1.8, 0]}>
         {/* First-person weapon */}
-        {localPlayerId && controlsRef.current && controlsRef.current.isLocked && (
+        {localPlayerId && controlsRef.current && (
           <Weapon
             type={selectedWeapon}
             isReloading={isReloading}
@@ -67,7 +74,7 @@ const GameScene: React.FC<GameSceneProps> = ({
       </group>
 
       {/* Players */}
-      {Object.entries(players).map(([id, player]) => (
+      {Object.entries(players).map(([id, player]) => 
         id !== localPlayerId && (
           <Player
             key={id}
@@ -75,7 +82,7 @@ const GameScene: React.FC<GameSceneProps> = ({
             isLocal={false}
           />
         )
-      ))}
+      )}
 
       {/* Map */}
       <Map mapType={mapType} />
