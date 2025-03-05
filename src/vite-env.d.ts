@@ -1,6 +1,4 @@
-
-/// <reference types="vite/client" />
-/// <reference types="@react-three/fiber" />
+export {};
 
 declare namespace JSX {
   interface IntrinsicElements {
@@ -24,7 +22,7 @@ declare namespace JSX {
 }
 
 // Define types for Bullet
-interface Bullet {
+export interface Bullet {
   id: string;
   playerId: string;
   x: number;
@@ -37,13 +35,13 @@ interface Bullet {
 }
 
 // Define types for GameRoom
-interface GameRoom {
+export interface GameRoom {
   id: string;
   name: string;
   map: string;
   maxPlayers: number;
   currentPlayers: number;
-  status: 'waiting' | 'playing' | 'ended';
+  status: "waiting" | "playing" | "ended";
   hostId: string;
   createdAt: string;
 }
