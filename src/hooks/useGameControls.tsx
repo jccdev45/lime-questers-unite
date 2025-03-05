@@ -38,6 +38,8 @@ const useGameControls = ({
   // Set up keyboard controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (!movementRef.current) return;
+      
       switch (e.code) {
         case 'KeyW':
           movementRef.current.forward = true;
@@ -72,6 +74,8 @@ const useGameControls = ({
     };
     
     const handleKeyUp = (e: KeyboardEvent) => {
+      if (!movementRef.current) return;
+      
       switch (e.code) {
         case 'KeyW':
           movementRef.current.forward = false;
@@ -134,7 +138,7 @@ const useGameControls = ({
     const runningMultiplier = 1.5;
     
     const updatePlayerMovement = () => {
-      if (!isLocked || !controlsRef.current || !playerRef.current) return;
+      if (!isLocked || !controlsRef.current || !playerRef.current || !movementRef.current) return;
       
       const camera = controlsRef.current.getObject();
       if (!camera) return;
