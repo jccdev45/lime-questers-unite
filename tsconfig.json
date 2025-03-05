@@ -21,6 +21,7 @@
     "checkJs": false, // Optionally enable type checking for JavaScript files
     "resolveJsonModule": true,
     "allowImportingTsExtensions": true, //Allows importing .ts extensions
+    "noEmit": true,
     "baseUrl": ".",
     "paths": {
       "@/*": [
