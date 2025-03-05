@@ -1,5 +1,5 @@
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 interface GameControlsProps {
@@ -35,6 +35,9 @@ const useGameControls = ({
   updatePosition,
   roomId,
 }: GameControlsProps) => {
+  // Fix for automatic firing
+  const fireIntervalRef = useRef<number | null>(null);
+  
   // Set up keyboard controls
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -99,21 +102,30 @@ const useGameControls = ({
       if (e.button === 0 && isLocked) {
         setIsFiring(true);
         fire();
-        const fireInterval = setInterval(() => {
+        
+        // Clear any existing interval
+        if (fireIntervalRef.current) {
+          clearInterval(fireIntervalRef.current);
+        }
+        
+        // Set up new interval
+        fireIntervalRef.current = window.setInterval(() => {
           if (isFiring) {
             fire();
-          } else {
-            clearInterval(fireInterval);
           }
         }, 300);
-        
-        return () => clearInterval(fireInterval);
       }
     };
     
     const handleMouseUp = (e: MouseEvent) => {
       if (e.button === 0) {
         setIsFiring(false);
+        
+        // Clear the interval when mouse is up
+        if (fireIntervalRef.current) {
+          clearInterval(fireIntervalRef.current);
+          fireIntervalRef.current = null;
+        }
       }
     };
     
@@ -127,6 +139,12 @@ const useGameControls = ({
       window.removeEventListener('keyup', handleKeyUp);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
+      
+      // Clear interval on cleanup
+      if (fireIntervalRef.current) {
+        clearInterval(fireIntervalRef.current);
+        fireIntervalRef.current = null;
+      }
     };
   }, [isLocked, isFiring, fire, reload, changeWeapon, controlsRef, setIsFiring]);
   
@@ -189,9 +207,20 @@ const useGameControls = ({
     return () => clearInterval(interval);
   }, [isLocked, updatePosition, controlsRef, playerRef]);
 
+  // Implement proper lock/unlock handlers
+  const handleLock = () => {
+    // This function is called when the pointer lock is acquired
+    console.log("Pointer lock acquired");
+  };
+
+  const handleUnlock = () => {
+    // This function is called when the pointer lock is released
+    console.log("Pointer lock released");
+  };
+
   return {
-    handleLock: () => {},
-    handleUnlock: () => {},
+    handleLock,
+    handleUnlock,
   };
 };
 

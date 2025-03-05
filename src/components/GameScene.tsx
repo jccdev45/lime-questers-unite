@@ -43,7 +43,11 @@ const GameScene: React.FC<GameSceneProps> = ({
       <PerspectiveCamera makeDefault position={[0, 1.8, 0]} fov={75} near={0.1} far={1000} />
       
       {/* Controls */}
-      <PointerLockControls ref={controlsRef} onLock={onLock} onUnlock={onUnlock} />
+      <PointerLockControls 
+        ref={controlsRef} 
+        onLock={onLock} 
+        onUnlock={onUnlock}
+      />
       
       {/* Player body */}
       <group ref={playerRef} position={[0, 1.8, 0]}>
